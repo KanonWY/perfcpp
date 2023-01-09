@@ -44,3 +44,7 @@ HeapLeakChecker heap_checker("test_foo");
 }
 if (!heap_checker.NoLeaks()) assert(NULL == "heap memory leak");
 ```
+
+
+### 4.tcmalloc
+高级“调整”标志，可以更精确地控制tcmalloc如何从内核分配内存.
