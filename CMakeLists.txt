@@ -5,14 +5,13 @@ project(testperf)
 
 set(CMAKE_CXX_STANDARD 11)
 
-
-
-
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+
+set(CMAKE_CXX_CIMPLIER "clang++")
+set(CMAKE_C_COMPILER "clang")
+
 # message(STATUS "-----> CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
-
-
 find_package(Gperftools REQUIRED)
 
 if(Gperftools_FOUND)
@@ -24,7 +23,6 @@ else()
 endif()
 
 include_directories(${GPERFTOOLS_INCLUDE_DIR})
-
 
 # find unwind
 find_package(PkgConfig REQUIRED)
@@ -50,9 +48,12 @@ if(PkgConfig_FOUND)
     endif()
 endif()
 
-add_executable(testCpu testCpu.cpp)
+add_executable(testCpu testCpu.cpp gperftoolsWrap.cpp)
 target_link_libraries(testCpu ${GPERFTOOLS_LIBRARIES} ${UNWIND_LIBRARIES})
 
 
-add_executable(testheap testHeap.cpp)
+add_executable(testheap testHeap.cpp gperftoolsWrap.cpp)
 target_link_libraries(testheap ${GPERFTOOLS_LIBRARIES} ${UNWIND_LIBRARIES})
+
+add_executable(main main.cpp gperftoolsWrap.cpp)
+target_link_libraries(main ${GPERFTOOLS_LIBRARIES} ${UNWIND_LIBRARIES})
