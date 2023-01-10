@@ -142,3 +142,64 @@ void DumpTcmallocProperty()
     }
 }
 ```
+### 7、perf火焰图
+#### 7.1 分析脚本下载
+火焰图是用图形化的方式来展现perf等工具采集的性能数据，对数据进行统计和分析，方便找出性能热点。这里选择使用Brendan D. Gregg大神开发的火焰图工具FlameGraph。  
+[flamgraphs官网](https://www.brendangregg.com/flamegraphs.html)  
+```bash
+git clone https://github.com/brendangregg/FlameGraph.git
+#将这些脚本export到PATH中。
+```
+#### 7.2 记录指定进程的数据信息
+```bash
+# perf record -a -g -F99 -p 进程ID sleep 20
+Warning:
+PID/TID switch overriding SYSTEM
+参数说明：
+-a         all cpus
+-F99       采样频率99HZ
+-g         统计调用栈
+-p         指定进程ID
+sleep      统计时间，单位秒
+```
+#### 7.3 perf report分析数据
+`perf report`简单分析数据
+```bash
+perf report -i perf.data
+Samples: 1K of event 'cpu-clock:pppH', Event count (approx.): 12323232200
+  Children      Self  Command  Shared Object      Symbol
++  100.00%     0.00%  main     main               [.] _start
++  100.00%     0.00%  main     libc.so.6          [.] __libc_start_main_impl (inlined)
++  100.00%     0.00%  main     libc.so.6          [.] __libc_start_call_main
++  100.00%     0.00%  main     main               [.] main
++  100.00%     0.00%  main     main               [.] example_test_heap_growth_profile
++  100.00%     0.00%  main     main               [.] func3
++   67.38%    67.30%  main     main               [.] func2
++   32.62%    32.62%  main     main               [.] func1
+```
+`perf report | more`查看函数调用
+```bash
+perf report -i perf.data | more
+# Children      Self  Command  Shared Object      Symbol
+# ........  ........  .......  .................  ....................................
+#
+   100.00%     0.00%  main     main               [.] _start
+            |
+            ---_start
+               __libc_start_main_impl (inlined)
+               __libc_start_call_main
+               main
+               example_test_heap_growth_profile
+               func3
+```
+#### 7.4 火焰图生成
+`perf record`的默认采集方式为：`event task-clock`,可以使用`ctrl+c`来结束采样;也可以使用sleep time使用
+时间采样。  
+使用`dwarf`格式函数展开可以更好的显示调用函数名，以及调用栈。
+```bash
+--call-graph dwarf        避免后面生成的火焰图有大量unknown函数名
+```
+```bash
+采样结果为perf.data
+（1）
+```
