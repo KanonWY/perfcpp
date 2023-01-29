@@ -78,5 +78,6 @@ int main()
 {
     example_test_heap_growth_profile();
     std::cout << "test Jenkins" << std::endl;
+    std::cout << "test Jenkins" << std::endl;
     return 0;
 }
